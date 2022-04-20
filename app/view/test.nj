@@ -1,0 +1,21 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <title>登录</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1"
+</head>
+    <body>
+        <h1>即将跳转登录</h1>
+    </body>
+    <script>
+        window.onload = function () {
+            setTimeout(()=> {
+                window.opener.postMessage('{{token}}', 'http://localhost:8081/')
+                window.close();
+            },2000)
+        }
+    </script>
+</html>
