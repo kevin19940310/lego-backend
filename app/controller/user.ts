@@ -13,7 +13,7 @@ const sendCodeRules = {
 
 const userPhoneCreateRule = {
   phoneNumber: { type: 'string', format: /^1[3-9]\d{9}$/, message: '手机号码格式错误' },
-  veriCode: { type: 'number', format: /^\d{4}&/, message: '验证码输入错误' },
+  veriCode: { type: 'string', format: /^\d{4}$/, message: '验证码输入错误' },
 };
 export interface AliPayUserInfo {
   avatar: string;

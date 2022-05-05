@@ -26,10 +26,10 @@ export default (appInfo: EggAppInfo) => {
   config.mongoose = {
     url: 'mongodb://localhost/lego',
   };
-  config.multipart = {
-    mode: 'file',
-    tmpdir: resolve(appInfo.baseDir, './upload'),
-  };
+  // config.multipart = {
+  //   mode: 'file',
+  //   tmpdir: resolve(appInfo.baseDir, './upload'),
+  // };
   config.static = {
     dir: [
       { prefix: '/public', dir: resolve(appInfo.baseDir, './app/public') },
@@ -50,7 +50,7 @@ export default (appInfo: EggAppInfo) => {
   // add your special config in here
   const bizConfig = {
     sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,
-    baseUrl: 'default.url',
+    baseUrl: appInfo.baseDir,
     jwt: {
       secret: '1234567890',
     },
@@ -62,6 +62,10 @@ export default (appInfo: EggAppInfo) => {
     aliSDkConfig: {
       appid: '2021002145610429',
       privateKey: process.env.privateKey,
+    },
+    txSDKConfig: {
+      SecretId: process.env.SecretId,
+      SecretKey: process.env.SecretKey,
     },
     H5BaseURL: 'http://localhost:7001/api/pages',
   };

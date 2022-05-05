@@ -19,5 +19,5 @@ export default (app: Application) => {
   router.delete('/api/works/:id', jwt, controller.work.delete);
   router.post('/api/works/publish/:id', jwt, controller.work.publishWork);
   router.post('/api/works/publish-template/:id', jwt, controller.work.publishTemplate);
-  router.post('/api/utils/upload', controller.utils.fileLocalUpload);
+  router.post('/api/utils/upload', controller.utils.fileLocalUploadByTxCos);
 };
