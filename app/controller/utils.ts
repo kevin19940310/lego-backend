@@ -5,7 +5,7 @@ import { pipeline } from 'stream/promises';
 import * as sharp from 'sharp';
 import { nanoid } from "nanoid";
 import { parse, join, extname } from 'path';
-import COS from "cos-nodejs-sdk-v5";
+import { FileStream } from '../../typings/app'
 
 export default class UtilsController extends Controller {
   async fileLocalUpload() {
@@ -56,29 +56,66 @@ export default class UtilsController extends Controller {
     const cos = app.TXCOS;
     const stream = await ctx.getFileStream();
     const savedOSSPath = join('imooc-test', nanoid(6) + extname(stream.filename));
-    const filePromise = new Promise<COS.PutObjectResult>((resolve, reject) => {
-      cos?.putObject({
+    try {
+      const data =  await cos?.putObject({
         Bucket: 'kevin1994-1258494266',
         Region: 'ap-chengdu',
         Key: savedOSSPath,
         Body: stream
-      },function (err, data) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
       });
-    });
-    try {
-      const data =  await filePromise;
       const { Location } = data;
       ctx.helper.success({ ctx, res: { url: Location } })
     } catch (e) {
       await sendToWormhole(stream);
       ctx.helper.error({ ctx, errorType: 'imageUploadFail' })
     }
-
+  }
+  async uploadMultipleFiles() {
+    const { ctx, app } = this;
+    const cos = app.TXCOS;
+    const { fileSize } = app.config.multipart;
+    const parts = ctx.multipart({
+      limits: {
+        fileSize: fileSize as number
+      }
+    })
+    const urls: string[]=[];
+    let part: FileStream | string[];
+    while ((part = await parts())) {
+      if(!Array.isArray(part)) {
+        const savedOSSPath = join('imooc-test', nanoid(6) + extname(part.filename));
+        try {
+          const data = await cos?.putObject({
+            Bucket: 'kevin1994-1258494266',
+            Region: 'ap-chengdu',
+            Key: savedOSSPath,
+            Body: part
+          });
+          const { Location } = data;
+          urls.push(Location);
+          if (part.truncated) {
+            await cos?.deleteObject({
+              Bucket: 'kevin1994-1258494266',
+              Region: 'ap-chengdu',
+              Key: savedOSSPath,
+            });
+            return ctx.helper.error({ ctx, errorType: 'imageUploadFileSizeError', error: `Reach fileSize limit ${fileSize} bytes` })
+          }
+          if(!part.filename) {
+            await cos?.deleteObject({
+              Bucket: 'kevin1994-1258494266',
+              Region: 'ap-chengdu',
+              Key: savedOSSPath,
+            });
+            return ctx.helper.error({ ctx, errorType: 'imageUploadFilenameError' })
+          }
+        } catch (e) {
+          await sendToWormhole(part)
+          ctx.helper.error({ ctx, errorType: 'imageUploadFail' })
+        }
+      }
+    }
+    ctx.helper.success({ ctx, res: { urls } })
   }
 
 }

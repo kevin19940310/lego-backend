@@ -33,9 +33,9 @@ export default (options: EggAppConfig['jwt']) => {
     }
     try {
       ctx.state.user = verify(token, secret);
-      await next();
     } catch (e) {
       return ctx.helper.error({ ctx, errorType: 'loginValidateFail' });
     }
+    await next();
   };
 };

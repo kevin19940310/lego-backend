@@ -20,6 +20,11 @@ declare module 'egg' {
   interface EggAppConfig {
     bcrypt: {
       saltRounds: number
+    },
+    jwt: {
+      secret: string;
+      enable?: boolean;
+      match?: string[];
     }
   }
 }

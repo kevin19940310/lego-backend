@@ -5,11 +5,15 @@ export default () => {
       await next();
     } catch (e) {
       const error = e as any;
+      console.log(error);
       if (error && error.status === 401) {
-        ctx.helper.error({ ctx, errorType: 'loginValidateFail' });
-      } else {
-        throw e;
+        return ctx.helper.error({ ctx, errorType: 'loginValidateFail' });
+      } else if(ctx.path === '/api/utils/upload'){
+        if(error && error.status === 400) {
+          return ctx.helper.error({ ctx, errorType:'imageUploadFileFormatError', error: error.message });
+        }
       }
+      throw error;
     }
   };
 };

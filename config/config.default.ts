@@ -12,7 +12,7 @@ export default (appInfo: EggAppInfo) => {
   config.keys = appInfo.name + '_1649216294923_4910';
 
   // add your egg config in here
-  config.middleware = [ 'customError' ];
+  config.middleware = [ 'jwt' ];
   config.security = {
     csrf: false,
   };
@@ -26,10 +26,10 @@ export default (appInfo: EggAppInfo) => {
   config.mongoose = {
     url: 'mongodb://localhost/lego',
   };
-  // config.multipart = {
-  //   mode: 'file',
-  //   tmpdir: resolve(appInfo.baseDir, './upload'),
-  // };
+  config.multipart = {
+    whitelist: ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+    fileSize: '100KB'
+  };
   config.static = {
     dir: [
       { prefix: '/public', dir: resolve(appInfo.baseDir, './app/public') },
@@ -39,6 +39,11 @@ export default (appInfo: EggAppInfo) => {
   config.bcrypt = {
     saltRounds: 10,
   };
+  config.jwt = {
+    enable: true,
+    secret: '1234567890',
+    match:['/api/users/getUserInfo', '/api/works', '/api/utils/upload'],
+  }
   config.redis = {
     client: {
       port: 6379,
@@ -51,9 +56,6 @@ export default (appInfo: EggAppInfo) => {
   const bizConfig = {
     sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,
     baseUrl: appInfo.baseDir,
-    jwt: {
-      secret: '1234567890',
-    },
     aliCloudConfig: {
       accessKeyId: process.env.accessKeyId,
       accessKeySecret: process.env.accessKeySecret,
